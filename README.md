@@ -11,5 +11,5 @@ A slack GPT bot for summarizing conversations, creating JIRA tickets, etc.
 3. Run server with docker compose
 
 ``` sh
-docekr compose up -d --build
+docker compose up -d --build
 ```
