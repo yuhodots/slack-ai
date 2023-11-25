@@ -2,11 +2,11 @@
 version: '3.8'
 
 services:
-  slack_gpt:
+  slack_ai:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: slack_gpt
+    container_name: slack_ai
     ports:
       - "30207:30207"
-    command: "uvicorn slack_gpt.app:app --host 0.0.0.0 --port 30207 --reload"
+    command: "uvicorn slack_ai.app:app --host 0.0.0.0 --port 30207 --reload"

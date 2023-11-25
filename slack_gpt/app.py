@@ -8,11 +8,11 @@ from fastapi.responses import JSONResponse
 from slack_sdk import WebClient
 from slack_sdk.signature import SignatureVerifier
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
-from slack_gpt.prompts import ACTION_LIST, jira_ticket, summary
+from slack_ai.prompts import ACTION_LIST, jira_ticket, summary
 
 
 # load environment variables
-load_dotenv('/slack_gpt/.env')
+load_dotenv('/slack_ai/.env')
 
 # set slack client
 rate_limit_handler = RateLimitErrorRetryHandler(max_retry_count=1)
@@ -50,7 +50,7 @@ def process_user_message(user_message, slack_bot_id):
     return user_message, action
 
 
-def run_slack_gpt(user_message, options, channel, thread_ts):
+def run_slack_ai(user_message, options, channel, thread_ts):
     raise NotImplementedError
 
 
@@ -67,7 +67,7 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
     user_message, options = process_user_message(data['event']['text'], os.getenv("SLACK_BOT_ID"))
     event = data['event']
     thread_ts = event['thread_ts'] if 'thread_ts' in event else event['ts']
-    background_tasks.add_task(run_slack_gpt, user_message, options, event['channel'], thread_ts)
+    background_tasks.add_task(run_slack_ai, user_message, options, event['channel'], thread_ts)
     return JSONResponse(content="Launched SlackGPT.")
 
 
