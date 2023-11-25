@@ -2,8 +2,6 @@
 
 A slack GPT bot for summarizing conversations, creating JIRA tickets, etc.
 
-## Quick Start
-
 1. Create Slack Bot
 
 2. Set environment variables in `.env`
@@ -11,5 +9,14 @@ A slack GPT bot for summarizing conversations, creating JIRA tickets, etc.
 3. Run server with docker compose
 
 ``` sh
-docker compose up -d --build
+docker compose up -d prod --build
+```
+
+For debugging, please refer codes below
+
+1. Run and attach to dev server
+
+``` sh
+docker compose up -d dev --build
+docekr attach slack_ai_dev
 ```
