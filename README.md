@@ -18,5 +18,5 @@ For debugging, please refer codes below
 
 ``` sh
 docker compose up -d dev --build
-docekr attach slack_ai_dev
+docker attach slack_ai_dev
 ```
