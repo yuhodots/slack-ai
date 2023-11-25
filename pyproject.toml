@@ -5,16 +5,19 @@ description = "Slack AI Bot"
 authors = [
     "Yuho Jeong <yuho8437@gmail.com>"
 ]
-packages = [
-    { include = "slack_ai" },
-]
+packages = [{include = "slack_ai"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 slack-sdk = "3.21.3"
-fastapi = "0.95.2"
+fastapi = {extras = ["all"], version = "^0.100.1"}
+uvicorn= "0.20.0"
+gunicorn = "^20.1.0"
+blosc2 = "2.2.3"
 openai = "0.27.2"
 pytest = "^7.1.2"
+pydantic = "^2.1.1"
+pydantic-settings = "^2.0.2"
 
 [build-system]
 requires = ["poetry-core >= 1.5.1"]
