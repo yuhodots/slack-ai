@@ -7,8 +7,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: slack_ai_prod
+    volumes:
+      - ./:/slack_ai
     ports:
-      - "30207:30207"
+      - "8080:30207"
     command: "uvicorn slack_ai.app:app --host 0.0.0.0 --port 30207 --reload"
 
   dev:
@@ -19,7 +21,7 @@ services:
     volumes:
       - ./:/slack_ai
     ports:
-      - "30207:30207"
+      - "8080:30207"
     command: "/bin/bash"
     stdin_open: true
     tty: true

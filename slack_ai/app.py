@@ -25,11 +25,7 @@ thread_ts2pids = defaultdict(list)
 app = FastAPI()
 
 
-def process_slack_events(body, headers, verbose=True):
-    if verbose:
-        print('BODY', body)
-        print('HEADER', headers)
-
+def process_slack_events(body, headers):
     # Avoid replay attacks
     if abs(time.time() - int(headers.get('X-Slack-Request-Timestamp'))) > 60 * 5:
         raise HTTPException(status_code=401, detail="Invalid timestamp")
@@ -37,21 +33,55 @@ def process_slack_events(body, headers, verbose=True):
     if not signature_verifier.is_valid(
             body=body,
             timestamp=headers.get("X-Slack-Request-Timestamp"),
-            signature=headers.get("X-Slack-Signature")):
+            signature=headers.get("X-Slack-Signature")
+        ):
         raise HTTPException(status_code=401, detail="Invalid signature")
 
     data = json.loads(body)
     return data
 
 
-def process_user_message(user_message, slack_bot_id):
-    user_message = user_message.replace(f'{slack_bot_id}', '').strip()
-    action = None
-    return user_message, action
+def get_action(user_message, slack_bot_id):
+    user_message = user_message.replace(f'<@{slack_bot_id}>', '').strip()
+
+    # select action
+    if user_message.startswith('!'):
+        action = user_message[1:]
+        if action not in ACTION_LIST:
+            raise HTTPException(status_code=400, detail=f"Invalid action: {action}")
+        return user_message, action
+    else:
+        return user_message, None
+    
+
+def get_messages_from_current_thread(channel, ts):
+    # get messages from current thread
+    messages = []
+    cursor = None
+    while True:
+        response = client.conversations_replies(channel=channel, ts=ts, cursor=cursor, limit=200)
+        messages += response['messages']
+        if not response['has_more']:
+            break
+        cursor = response['response_metadata']['next_cursor']
+    return messages
 
 
-def run_slack_ai(user_message, options, channel, thread_ts):
-    raise NotImplementedError
+def process_conversation(messages):
+    # process current thread messages to conversation (user_name: message)
+    conversation = []
+    for message in messages:
+        if 'user' in message:
+            conversation.append(f"{message['user']}: {message['text']}")
+    return '\n'.join(conversation)
+
+
+def run_slack_ai(action, channel, ts):
+    messages = get_messages_from_current_thread(channel, ts)
+    conversation = process_conversation(messages)
+    action_func = jira_ticket if action == 'jira_ticket' else summary
+    response = action_func(conversation)
+    client.chat_postMessage(channel=channel, ts=ts, text=response)
 
 
 @app.post("/")
@@ -64,11 +94,10 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
     if 'challenge' in data:
         return JSONResponse(content=data['challenge'])
 
-    user_message, options = process_user_message(data['event']['text'], os.getenv("SLACK_BOT_ID"))
-    event = data['event']
-    thread_ts = event['thread_ts'] if 'thread_ts' in event else event['ts']
-    background_tasks.add_task(run_slack_ai, user_message, options, event['channel'], thread_ts)
-    return JSONResponse(content="Launched SlackGPT.")
+    action = get_action(data['event']['text'], os.getenv("SLACK_BOT_ID"))
+    ts = data['event']['thread_ts'] if 'thread_ts' in data['event'] else data['event']['ts']
+    background_tasks.add_task(run_slack_ai, action, data['event']['channel'], ts)
+    return JSONResponse(content="Processing started")
 
 
 @app.get("/")
