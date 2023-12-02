@@ -14,7 +14,7 @@ from openai import OpenAI
 
 
 # load environment variables
-load_dotenv("/slack_ai/.env")
+load_dotenv()
 
 # set openai client
 openai_client = OpenAI()
