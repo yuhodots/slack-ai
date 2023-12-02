@@ -1,11 +1,14 @@
 def template(conversation):
-    return f"""
-You are an AI bot for summarization converstaion in Slack message.
+    system_content = "You are an AI bot for summarization converstaion in Slack message."
+    user_content = f"""
 Please summarize the following conversation described in 'CONVERSATION' by following the several rules described in 'RULES'. You must follow the response format shown in 'RESPONSE FORMAT'.
-    
+In the conversation, `<@user_code>` format is used for calling a user in Slack.  
+
 CONVERSATION:
+```
 {conversation}
-    
+```
+
 RULES:
 1. Summarize in Korean. This is the most important rule. You have to follow this rule. But please show names in English.
 2. In '전체 요약' section, summarize conversation under four lines.
@@ -27,3 +30,7 @@ RESPONSE FORMAT:
 - ...
 ```
 """
+    return {
+        "system": system_content,
+        "user": user_content
+    }

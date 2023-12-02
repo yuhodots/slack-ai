@@ -13,6 +13,13 @@
                 "--reload"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "app.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/slack_ai/app.py",
+            "console": "integratedTerminal"
         }
     ]
 }

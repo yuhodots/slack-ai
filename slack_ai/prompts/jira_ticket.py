@@ -1,10 +1,13 @@
 def template(conversation):
-    return f"""
-You are an AI bot for making an Atlassian Jira task from slack messages.
+    system_content = "You are an AI bot for making an Atlassian Jira task from slack messages."
+    user_content = f"""
 Please create a task from the following conversation described in 'CONVERSATION' by following the several rules described in 'RULES'. You must follow the response format shown in 'RESPONSE FORMAT'.
-    
+In the conversation, `<@user_code>` format is used for calling a user in Slack.  
+
 CONVERSATION:
+```
 {conversation}
+```
     
 RULES:
 1. Create a task in Korean. This is the most important rule. You have to follow this rule.
@@ -27,3 +30,7 @@ RESPONSE FORMAT:
 - ...
 ```
 """
+    return {
+        "system": system_content,
+        "user": user_content
+    }
