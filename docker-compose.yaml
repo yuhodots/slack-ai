@@ -1,4 +1,4 @@
-# docker compose --env-file ~/.env up -d
+# docker compose up prod
 version: '3.8'
 
 services:
@@ -7,6 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: slack_ai_prod
+    env_file:
+      - .env
     volumes:
       - ./:/slack_ai
     ports:
@@ -18,6 +20,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: slack_ai_dev
+    env_file:
+      - .env
     volumes:
       - ./:/slack_ai
     ports:

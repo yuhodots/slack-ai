@@ -101,7 +101,7 @@ def run_slack_ai(action, channel, ts):
     template_func = jira_ticket if action == "jira_ticket" else summary
     prompt = template_func.template(conversation)
     gpt_response = run_openai_api(prompt)
-    formatted_reply = format_message(channel, gpt_response["text"])
+    formatted_reply = format_message(channel, gpt_response['choices'][0]['message']['content'])
     slack_client.chat_postMessage(**formatted_reply, thread_ts=ts)
     logger.info(f"Finished processing")
 
