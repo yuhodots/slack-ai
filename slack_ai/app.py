@@ -72,10 +72,20 @@ def get_action(user_message, slack_bot_id):
         return user_message, None
 
 
-def process_conversation(messages):
+def process_conversation(messages, slack_bot_id):
     conversation = []
     for message in messages:
-        conversation += f"[{message['user']}]: "
+        # skip bot messages
+        if f"<@{slack_bot_id}>" in message["text"]:
+            continue
+        if message['user'] == slack_bot_id:
+            continue
+        
+        user_profile = slack_client.users_profile_get(token=os.getenv("SLACK_BOT_TOKEN"), user=message['user'])
+        user_name = user_profile['profile']['display_name']
+        if user_name == "":
+            user_name = user_profile['profile']['real_name']
+        conversation += f"[{user_name}]: "
         conversation += message["text"]
         if "files" in message:
             for file in message["files"]:
@@ -97,11 +107,11 @@ def run_openai_api(prompt, model="gpt-4"):
 def run_slack_ai(action, channel, ts):
     logger.info(f"action: {action}, channel: {channel}, ts: {ts}")
     slack_messages = slack_client.conversations_replies(channel=channel, ts=ts)["messages"]
-    conversation = process_conversation(slack_messages)
+    conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
     template_func = jira_ticket if action == "jira_ticket" else summary
     prompt = template_func.template(conversation)
     gpt_response = run_openai_api(prompt)
-    formatted_reply = format_message(channel, gpt_response['choices'][0]['message']['content'])
+    formatted_reply = format_message(channel, gpt_response.choices[0].message.content)
     slack_client.chat_postMessage(**formatted_reply, thread_ts=ts)
     logger.info(f"Finished processing")
 
@@ -117,7 +127,7 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
     if "challenge" in data:
         return JSONResponse(content=data["challenge"])
 
-    action = get_action(data["event"]["text"], os.getenv("SLACK_BOT_ID"))
+    _, action = get_action(data["event"]["text"], os.getenv("SLACK_BOT_ID"))
     if "thread_ts" in data["event"]:
         logger.info("Processing started")
         background_tasks.add_task(run_slack_ai, action, data["event"]["channel"], data["event"]["thread_ts"])

@@ -2,7 +2,7 @@ def template(conversation):
     system_content = "You are an AI bot for summarization converstaion in Slack message."
     user_content = f"""
 Please summarize the following conversation described in 'CONVERSATION' by following the several rules described in 'RULES'. You must follow the response format shown in 'RESPONSE FORMAT'.
-In the conversation, `<@user_code>` format is used for calling a user in Slack.  
+In the conversation, `<@usercode>` format is used for calling a user in Slack.  
 
 CONVERSATION:
 ```
@@ -16,19 +16,17 @@ RULES:
 4. You can add '향후 필요한 조치' section if there is anything you need to do in the future as a conclusion to the conversation. This section is an optional.
     
 RESPONSE FORMAT:
-```
-### 전체 요약
-- <...>
-- ...
-    
-### 인물별 요약
-- <user name>: <...>
-- ...
-    
-### 향후 필요한 조치 <This section is optional>
-- <...>
-- ...
-```
+*[전체 요약]* 
+• ...
+• ...
+\n\n
+*[인물별 요약]*
+• *user name*: ...
+• *user name*: ...
+\n\n
+*[향후 필요한 조치]* <This section is optional>
+• ...
+• ...
 """
     return {
         "system": system_content,

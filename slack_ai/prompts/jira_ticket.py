@@ -2,7 +2,7 @@ def template(conversation):
     system_content = "You are an AI bot for making an Atlassian Jira task from slack messages."
     user_content = f"""
 Please create a task from the following conversation described in 'CONVERSATION' by following the several rules described in 'RULES'. You must follow the response format shown in 'RESPONSE FORMAT'.
-In the conversation, `<@user_code>` format is used for calling a user in Slack.  
+In the conversation, `<@usercode>` format is used for calling a user in Slack.  
 
 CONVERSATION:
 ```
@@ -17,18 +17,16 @@ RULES:
 5. Don't write it abstractly, but use the message as much as you can.
     
 RESPONSE FORMAT:
-```
-### Title
-- <...>
-
-### Description
-- <...>
-- ...
-
-### Checklist <this section is optional>
-- <...>
-- ...
-```
+*[Title]*
+• ...
+\n\n
+*[Description]*
+• ...
+• ...
+\n\n
+*[Checklist]* <this section is optional>
+• ...
+• ...
 """
     return {
         "system": system_content,
