@@ -10,7 +10,7 @@ CONVERSATION:
 ```
     
 RULES:
-1. Create a task in Korean. This is the most important rule. You have to follow this rule.
+1. Create a task in Korean. This is the most important rule. You have to follow this rule. But please show user name in English (i.e., *user name*).
 2. In 'Title' section, describe the title of the task in one line.
 3. In 'Description' section, write down the motivation, details, and purpose of the task under three lines.
 4. You can add 'Checklist' section if there are specific steps or checklist that I have to go through to perform the task under three lines.

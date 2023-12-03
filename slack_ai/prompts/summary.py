@@ -10,7 +10,7 @@ CONVERSATION:
 ```
 
 RULES:
-1. Summarize in Korean. This is the most important rule. You have to follow this rule. But please show names in English.
+1. Summarize in Korean. This is the most important rule. You have to follow this rule. But please show user name in English (i.e., *user name*).
 2. In '전체 요약' section, summarize conversation under four lines.
 3. In '인물별 요약' section, make a toggle for each person and summarize their arguments as one sentence as much as possible.
 4. You can add '향후 필요한 조치' section if there is anything you need to do in the future as a conclusion to the conversation. This section is an optional.
