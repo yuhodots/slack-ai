@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from slack_sdk import WebClient
 from slack_sdk.signature import SignatureVerifier
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
-from slack_ai.prompts import ACTION_LIST, jira_ticket, summary
+from slack_ai.prompts import ACTION_LIST, jira_ticket, summary, emoji, base
 from openai import OpenAI
 
 
@@ -69,7 +69,7 @@ def get_action(user_message, slack_bot_id):
             raise HTTPException(status_code=400, detail=f"Invalid action: {action}")
         return user_message, action
     else:
-        return user_message, None
+        return user_message, "base"
 
 
 def process_conversation(messages, slack_bot_id):
@@ -104,15 +104,26 @@ def run_openai_api(prompt, model="gpt-4"):
     return completion
 
 
-def run_slack_ai(action, channel, ts):
+def run_slack_ai(user_message, action, channel, ts):
     logger.info(f"action: {action}, channel: {channel}, ts: {ts}")
-    slack_messages = slack_client.conversations_replies(channel=channel, ts=ts)["messages"]
-    conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
-    template_func = jira_ticket if action == "jira_ticket" else summary
-    prompt = template_func.template(conversation)
+    
+    slack_messages = slack_client.conversations_replies(channel=channel, ts=ts)["messages"]    
+
+    if action == "jira_ticket":
+        conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
+        prompt = jira_ticket.template(conversation)
+    elif action == "summary":
+        conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
+        prompt = summary.template(conversation)
+    elif action == "emoji":
+        prompt = emoji.template(slack_messages[0]["text"])
+    else:
+        prompt = base.template(user_message)
+
     gpt_response = run_openai_api(prompt)
     formatted_reply = format_message(channel, gpt_response.choices[0].message.content)
     slack_client.chat_postMessage(**formatted_reply, thread_ts=ts)
+
     logger.info(f"Finished processing")
 
 
@@ -127,10 +138,14 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
     if "challenge" in data:
         return JSONResponse(content=data["challenge"])
 
-    _, action = get_action(data["event"]["text"], os.getenv("SLACK_BOT_ID"))
+    user_message, action = get_action(data["event"]["text"], os.getenv("SLACK_BOT_ID"))
     if "thread_ts" in data["event"]:
         logger.info("Processing started")
-        background_tasks.add_task(run_slack_ai, action, data["event"]["channel"], data["event"]["thread_ts"])
+        background_tasks.add_task(run_slack_ai, 
+                                  user_message, 
+                                  action, 
+                                  data["event"]["channel"], 
+                                  data["event"]["thread_ts"])
     return JSONResponse(content="Processing started")
 
 
