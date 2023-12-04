@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from slack_sdk import WebClient
 from slack_sdk.signature import SignatureVerifier
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
-from slack_ai.prompts import ACTION_LIST, jira_ticket, summary, emoji, base
+from slack_ai.prompts import ACTION_LIST, jira, summary, emoji, base
 from openai import OpenAI
 
 
@@ -106,12 +106,12 @@ def run_openai_api(prompt, model="gpt-4"):
 
 def run_slack_ai(user_message, action, channel, ts):
     logger.info(f"action: {action}, channel: {channel}, ts: {ts}")
-    
+
     slack_messages = slack_client.conversations_replies(channel=channel, ts=ts)["messages"]    
 
-    if action == "jira_ticket":
+    if action == "jira":
         conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
-        prompt = jira_ticket.template(conversation)
+        prompt = jira.template(conversation)
     elif action == "summary":
         conversation = process_conversation(slack_messages, os.getenv("SLACK_BOT_ID"))
         prompt = summary.template(conversation)

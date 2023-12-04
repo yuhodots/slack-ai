@@ -10,9 +10,9 @@
 
 ![img](./.assets/summary.png)
 
-3. `@SlackBot`!jira_ticket: Create a Jira ticket based on the current thread conversation
+3. `@SlackBot`!jira: Create a Jira ticket based on the current thread conversation
 
-![img](./.assets/jira_ticket.png)
+![img](./.assets/jira.png)
 
 4. `@SlackBot`!emoji: Generate appropriate emojis next to the words for the Slack message
 
